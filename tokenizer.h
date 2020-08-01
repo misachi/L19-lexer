@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 #define BUFSIZE 4096
 
@@ -26,7 +27,7 @@ enum
     NUMBER,
     ID,
     RELOP,
-    FLOAT,
+    FLOATNUMBER,
     LT,
     EQ,
     LE,
@@ -39,10 +40,33 @@ class Token
 {
 private:
     int type;
+    std::unordered_map<int, std::string> token_names {
+        {WHILE, "while"},
+        {ELSE, "else"},
+        {IF, "if"},
+        {DO, "do"},
+        {RETURN, "return"},
+        {SWITCH, "switch"},
+        {CASE, "case"},
+        {BREAK, "break"},
+        {DEFAULT, "default"},
+        {CONTINUE, "continue"},
+        {TRY, "try"},
+        {CATCH, "catch"},
+        {TRUE, "true"},
+        {FALSE, "FALSE"},
+        {LT, "<"},
+        {EQ, "=="},
+        {LE, "<="},
+        {GT, ">"},
+        {GE, ">="},
+        {NE, "!="},
+        {RELOP, "relop"}
+    };
 public:
     Token(int n) : type(n) {};
     virtual void print_token() const = 0;
-    int get_type() const { return type; }
+    std::string get_type() const { return token_names.at(type); }
     virtual ~Token() {};
 };
 
@@ -53,25 +77,25 @@ private:
 public:
     NumberToken(int i=NUMBER) : Token(i) {};
     void print_token() const{
-         std::cout << "Type: " << get_type() << "\nAttribute: " << i_attr << std::endl; 
+         std::cout << "Type: " << get_type() << "  Attribute: " << i_attr << std::endl; 
     }
     int get_attribute() const { return i_attr; };
     void set_attribute(int i) { i_attr = i; }
     ~NumberToken() {};
 };
 
-class StingToken : public Token
+class StringToken : public Token
 {
 private:
     std::string s_attr;
 public:
-    StingToken(int i=ID) : Token(i) {};
+    StringToken(int i=ID) : Token(i) {};
     void print_token() const{
-         std::cout << "Type: " << get_type() << "\nAttribute: " << s_attr << std::endl; 
+         std::cout << "Type: " << get_type() << "  Attribute: " << s_attr << std::endl; 
     }
     std::string get_attribute() const { return s_attr; };
     void set_attribute(std::string s) { s_attr = s; }
-    ~StingToken() {};
+    ~StringToken() {};
 };
 
 class FloatToken : public Token
@@ -79,9 +103,9 @@ class FloatToken : public Token
 private:
     double d_attr;
 public:
-    FloatToken(int i=FLOAT) : Token(i) {};
+    FloatToken(int i=FLOATNUMBER) : Token(i) {};
     void print_token() const{
-         std::cout << "Type: " << get_type() << "\nAttribute: " << d_attr << std::endl; 
+         std::cout << "Type: " << get_type() << "  Attribute: " << d_attr << std::endl; 
     }
     double get_attribute() const { return d_attr; };
     void set_attribute(double d) { d_attr = d; }
