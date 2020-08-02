@@ -13,7 +13,7 @@ private:
     c_iter bufferStart;
     c_iter bufferPtr;
     c_iter bufferEnd;
-    std::unordered_map<std::string, int> token_names {
+    std::unordered_map<std::string, int> token_names{
         {"WHILE", WHILE},
         {"ELSE", ELSE},
         {"IF", IF},
@@ -33,16 +33,16 @@ private:
         {"<=", LE},
         {">", GT},
         {">=", GE},
-        {"!=", NE}
-    };
+        {"!=", NE}};
+
 public:
     Lexer(std::string *str);
     Token *getToken();
     void ignoreWhiteSpace();
-    StringToken* getRelopToken();
-    NumberToken* getIntegerToken();
-    FloatToken* getFloatToken();
-    StringToken* getStringToken();
+    StringToken *getRelopToken();
+    NumberToken *getIntegerToken();
+    FloatToken *getFloatToken();
+    StringToken *getStringToken();
     void backup(); // Step back one level from the current location pointed to by bufferPtr
     ~Lexer();
 };
