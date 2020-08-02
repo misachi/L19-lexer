@@ -1,11 +1,10 @@
 #ifndef _LEXER_H
 #define _LEXER_H
 
-#include <string>
 #include "tokenizer.h"
 
 using c_iter = std::string::const_iterator;
-std::string string_read_file_buffer(std::string filePath);
+std::string *string_read_file_buffer(std::string filePath);
 
 class Lexer
 {
@@ -14,17 +13,38 @@ private:
     c_iter bufferStart;
     c_iter bufferPtr;
     c_iter bufferEnd;
+    std::unordered_map<std::string, int> token_names {
+        {"WHILE", WHILE},
+        {"ELSE", ELSE},
+        {"IF", IF},
+        {"DO", DO},
+        {"RETURN", RETURN},
+        {"SWITCH", SWITCH},
+        {"CASE", CASE},
+        {"BREAK", BREAK},
+        {"DEFAULT", DEFAULT},
+        {"CONTINUE", CONTINUE},
+        {"TRY", TRY},
+        {"CATCH", CATCH},
+        {"TRUE", TRUE},
+        {"FALSE", FALSE},
+        {"<", LT},
+        {"==", EQ},
+        {"<=", LE},
+        {">", GT},
+        {">=", GE},
+        {"!=", NE}
+    };
 public:
     Lexer(std::string *str);
-    Lexer(c_iter start, c_iter ptr, c_iter end);
-    Token* getToken();
+    Token *getToken();
     void ignoreWhiteSpace();
-    StringToken* checkRelop();
-    NumberToken* checkInteger();
-    FloatToken* checkFloat();
-    StringToken* checkString();
+    StringToken* getRelopToken();
+    NumberToken* getIntegerToken();
+    FloatToken* getFloatToken();
+    StringToken* getStringToken();
     void backup(); // Step back one level from the current location pointed to by bufferPtr
-    ~Lexer() {};
+    ~Lexer();
 };
 
 #endif

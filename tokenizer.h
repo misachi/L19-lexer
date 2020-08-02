@@ -34,6 +34,7 @@ enum
     GT,
     GE,
     NE,
+    ENDTOKEN
 };
 
 class Token
@@ -41,19 +42,19 @@ class Token
 private:
     int type;
     std::unordered_map<int, std::string> token_names {
-        {WHILE, "while"},
-        {ELSE, "else"},
-        {IF, "if"},
-        {DO, "do"},
-        {RETURN, "return"},
-        {SWITCH, "switch"},
-        {CASE, "case"},
-        {BREAK, "break"},
-        {DEFAULT, "default"},
-        {CONTINUE, "continue"},
-        {TRY, "try"},
-        {CATCH, "catch"},
-        {TRUE, "true"},
+        {WHILE, "WHILE"},
+        {ELSE, "ELSE"},
+        {IF, "IF"},
+        {DO, "DO"},
+        {RETURN, "RETURN"},
+        {SWITCH, "SWITCH"},
+        {CASE, "CASE"},
+        {BREAK, "BREAK"},
+        {DEFAULT, "DEFAULT"},
+        {CONTINUE, "CONTINUE"},
+        {TRY, "TRY"},
+        {CATCH, "CATCH"},
+        {TRUE, "TRUE"},
         {FALSE, "FALSE"},
         {LT, "<"},
         {EQ, "=="},
@@ -61,11 +62,12 @@ private:
         {GT, ">"},
         {GE, ">="},
         {NE, "!="},
-        {RELOP, "relop"}
+        {ID, "ID"},
+        {ENDTOKEN, "EOF"}
     };
 public:
     Token(int n) : type(n) {};
-    virtual void print_token() const = 0;
+    virtual void print_token() const { std::cout << "Type: " << get_type() << std::endl; };
     std::string get_type() const { return token_names.at(type); }
     virtual ~Token() {};
 };
@@ -90,6 +92,7 @@ private:
     std::string s_attr;
 public:
     StringToken(int i=ID) : Token(i) {};
+    StringToken(std::string attr, int i=ID) : Token(i), s_attr(attr) {};
     void print_token() const{
          std::cout << "Type: " << get_type() << "  Attribute: " << s_attr << std::endl; 
     }
