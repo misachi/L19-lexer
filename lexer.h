@@ -28,12 +28,19 @@ private:
         {"CATCH", CATCH},
         {"TRUE", TRUE},
         {"FALSE", FALSE},
+        {"PUNCT", PUNCT},
         {"<", LT},
         {"==", EQ},
         {"<=", LE},
         {">", GT},
         {">=", GE},
-        {"!=", NE}};
+        {"!=", NE},
+        {"(", LP},
+        {")", RP},
+        {"{", LB},
+        {"}", RB},
+        {"=", ASSIGN}
+    };
 
 public:
     Lexer(std::string *str);
@@ -43,7 +50,6 @@ public:
     NumberToken *getIntegerToken();
     FloatToken *getFloatToken();
     StringToken *getStringToken();
-    void backup(); // Step back one level from the current location pointed to by bufferPtr
     ~Lexer();
 };
 
