@@ -22,6 +22,8 @@ public:
     FloatToken *float_token();
     StringToken *id_token();
     StringToken *delim_token();
+    StringToken *op_token();
+    StringToken *logic_token();
     ~Lexer();
 };
 

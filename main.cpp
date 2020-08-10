@@ -9,23 +9,18 @@
 
 static std::string *string_read_file_buffer(std::string filePath);
 
-static inline void printToken(Token *tok)
-{
-    tok->print_token();
-    delete tok;
-}
-
 int main(int argc, char **args)
 {
     if (argc < 2)
-        throw std::length_error("Argument Count Error");
+        throw std::runtime_error{"No file to parse"};
     std::string *path = string_read_file_buffer(args[1]);
     Lexer lex {path};
 
-    Token *tok = lex.getToken();
+    auto tok = lex.getToken();
     while (tok->get_type() != ENDTOKEN)
     {
-        printToken(tok);
+        tok->print_token();
+        delete tok;
         tok = lex.getToken();
     }
     delete tok;

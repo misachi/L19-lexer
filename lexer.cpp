@@ -32,7 +32,10 @@ Token *Lexer::getToken() {
     if (std::ispunct(c)) {
       if (c == '=' || c == '<' || c == '>' || c == '!') {
         return relop_token();
+      } else if (c == '+' || c == '-' || c == '*' || c == '/') {
+        return op_token();
       }
+
       return delim_token();
     }
 
@@ -78,19 +81,25 @@ StringToken *Lexer::delim_token() {
   switch (*bufferPtr) {
   case '(':
     ++bufferPtr;
-    return new StringToken{str, PUNCT};
+    return new StringToken{str, LP};
   case ')':
     ++bufferPtr;
-    return new StringToken{str, PUNCT};
+    return new StringToken{str, RP};
   case '{':
     ++bufferPtr;
-    return new StringToken{str, PUNCT};
+    return new StringToken{str, LB};
   case '}':
     ++bufferPtr;
-    return new StringToken{str, PUNCT};
+    return new StringToken{str, RB};
+  case ';':
+    ++bufferPtr;
+    return new StringToken{str, ENDMARKER};
+  case '"':
+    ++bufferPtr;
+    return new StringToken{str, DOUBLEQUOTE};
   default:
     ++bufferPtr;
-    return new StringToken{str, PUNCT};
+    return new StringToken{ERRORTOKEN};
   }
 }
 
@@ -113,30 +122,96 @@ StringToken *Lexer::relop_token() {
     case 1:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"==", RELOP};
+        return new StringToken{"==", EQ};
       } else {
         return new StringToken{"=", ASSIGN};
       }
     case 3:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"<=", RELOP};
+        return new StringToken{"<=", LE};
+      } else if (*bufferPtr == '<') {
+        ++bufferPtr;
+        return new StringToken{"<<", LSHIFT};
       } else {
-        return new StringToken{"<", RELOP};
+        return new StringToken{"<", LT};
       }
     case 5:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{">=", RELOP};
+        return new StringToken{">=", GE};
+      } else if (*bufferPtr == '>') {
+        ++bufferPtr;
+        return new StringToken{">>", RSHIFT};
       } else {
-        return new StringToken{">", RELOP};
+        return new StringToken{">", GT};
       }
     case 7:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"!=", RELOP};
+        return new StringToken{"!=", NE};
       }
       break;
+    default:
+      break;
+    }
+  }
+}
+
+StringToken *Lexer::op_token() {
+  int state = 0;
+  while (1) {
+    switch (state) {
+    case 0:
+      if (*bufferPtr == '-') {
+        state = 1;
+      } else if (*bufferPtr == '+') {
+        state = 3;
+      } else if (*bufferPtr == '*') {
+        state = 7;
+      } else if (*bufferPtr == '/') {
+        state = 9;
+      }
+
+      ++bufferPtr;
+      break;
+    case 1:
+      if (*bufferPtr == '=') {
+        ++bufferPtr;
+        return new StringToken{"-=", MINUSEQUAL};
+      } else if (*bufferPtr == '-') {
+        ++bufferPtr;
+        return new StringToken{"--", DEC};
+      } else if (*bufferPtr == '>') {
+        ++bufferPtr;
+        return new StringToken{"->", RETURN_TYPE};
+      }else {
+        return new StringToken{"-", MINUS};
+      }
+    case 3:
+      if (*bufferPtr == '=') {
+        ++bufferPtr;
+        return new StringToken{"+=", PLUSEQUAL};
+      } else if (*bufferPtr == '+') {
+        ++bufferPtr;
+        return new StringToken{"++", INC};
+      } else {
+        return new StringToken{"+", PLUS};
+      }
+    case 7:
+      if (*bufferPtr == '=') {
+        ++bufferPtr;
+        return new StringToken{"*=", MULTIPLYEQUAL};
+      } else {
+        return new StringToken{"*", MULTIPLY};
+      }
+    case 9:
+      if (*bufferPtr == '=') {
+        ++bufferPtr;
+        return new StringToken{"/=", DIVIDEEQUAL};
+      } else {
+        return new StringToken{"/", DIVIDE};
+      }
     default:
       break;
     }
