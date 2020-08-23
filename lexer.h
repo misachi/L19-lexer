@@ -8,13 +8,13 @@ using c_iter = std::string::const_iterator;
 class Lexer
 {
 private:
-    std::string *inputString;
+    std::string inputString;
     c_iter bufferStart;
     c_iter bufferPtr;
     c_iter bufferEnd;
 
 public:
-    Lexer(std::string *str);
+    Lexer(std::string &str);
     Token *getToken();
     void ignoreWhiteSpace();
     StringToken *relop_token();

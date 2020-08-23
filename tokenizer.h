@@ -66,7 +66,7 @@ enum {
 
 class Token {
 public:
-  Token(int n) : type(n){};
+  Token(int n) : type{n} {};
   virtual void print_token() const {};
   int get_type() const { return type; }
   std::unordered_map<std::string, int> get_token_names() const {
@@ -194,8 +194,8 @@ private:
 
 class NumberToken : public Token {
 public:
-  NumberToken(int i = NUMBER) : Token(i){};
-  NumberToken(int attr, int i = ID) : Token(i), i_attr(attr){};
+  NumberToken(int i = NUMBER) : Token{i} {};
+  NumberToken(int attr, int i = ID) : Token{i}, i_attr{attr} {};
   void print_token() const {
     std::cout << "Type: " << get_type_name() << "  Attribute: " << i_attr
               << std::endl;
@@ -209,8 +209,8 @@ private:
 
 class StringToken : public Token {
 public:
-  StringToken(int i = ID) : Token(i){};
-  StringToken(std::string attr, int i = ID) : Token(i), s_attr(attr){};
+  StringToken(int i = ID) : Token{i} {};
+  StringToken(std::string attr, int i = ID) : Token{i}, s_attr{attr} {};
   void print_token() const {
     std::cout << "Type: " << get_type_name() << "  Attribute: " << s_attr
               << std::endl;
@@ -224,7 +224,7 @@ private:
 
 class FloatToken : public Token {
 public:
-  FloatToken(int i = FLOATNUMBER) : Token(i){};
+  FloatToken(int i = FLOATNUMBER) : Token{i} {};
   void print_token() const {
     std::cout << "Type: " << get_type_name() << "  Attribute: " << d_attr
               << std::endl;

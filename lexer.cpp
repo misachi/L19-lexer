@@ -5,14 +5,14 @@
 #include <cctype>
 #include <vector>
 
-Lexer::Lexer(std::string *str) {
+Lexer::Lexer(std::string &str) {
   inputString = str;
-  bufferStart = inputString->cbegin();
-  bufferPtr = inputString->cbegin();
-  bufferEnd = inputString->cend(); // bufferEnd == EOF
+  bufferStart = inputString.cbegin();
+  bufferPtr = inputString.cbegin();
+  bufferEnd = inputString.cend(); // bufferEnd == EOF
 }
 
-Lexer::~Lexer() { delete inputString; }
+Lexer::~Lexer() {}
 
 void Lexer::ignoreWhiteSpace() {
   while ((bufferPtr != bufferEnd) && isspace(*bufferPtr))
@@ -56,7 +56,7 @@ StringToken *Lexer::id_token() {
     str.push_back(*bufferPtr);
     ++bufferPtr;
   }
-  StringToken *out_str = new StringToken{str};
+  StringToken *out_str {new StringToken{str}};
   std::unordered_map<std::string, int> u_map = out_str->get_token_names();
   auto p = u_map.find(str);
   if (p == u_map.end()) {
