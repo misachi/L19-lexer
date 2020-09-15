@@ -1,6 +1,6 @@
-#include "lexer.h"
-#include "tokenizer.h"
-#include "util.h"
+#include "../Include/lexer.h"
+#include "../Include/tokenizer.h"
+#include "../Include/util.h"
 
 #include <cctype>
 #include <vector>

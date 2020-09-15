@@ -1,7 +1,7 @@
 #ifndef _LEXER_H
 #define _LEXER_H
 
-#include "tokenizer.h"
+#include <tokenizer.h>
 
 using c_iter = std::string::const_iterator;
 
