@@ -1,7 +1,5 @@
 CC := g++
 
-# Output of /usr/bin/python3.7-config --cflags
-# -specs=/usr/share/dpkg/no-pie-compile.specs flag removed as it doesn't exist
 CFLAGS := \
 	-IInclude/ \
 	-Wpedantic \
