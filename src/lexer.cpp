@@ -3,39 +3,50 @@
 #include "../Include/util.h"
 
 #include <cctype>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <vector>
 
-Lexer::Lexer(std::string &str) {
-  inputString = str;
-  bufferStart = inputString.cbegin();
-  bufferPtr = inputString.cbegin();
-  bufferEnd = inputString.cend(); // bufferEnd == EOF
+using Lex::Lexer;
+
+Lexer::Lexer(std::string str) {
+  file_s.open(str);
+  bufferPtr = bufferEnd;
 }
 
-Lexer::~Lexer() {}
+Lexer::~Lexer() { file_s.close(); }
 
 void Lexer::ignoreWhiteSpace() {
   while ((bufferPtr != bufferEnd) && isspace(*bufferPtr))
     ++bufferPtr;
-  bufferStart = bufferPtr;
+}
+
+void Lexer::getline() {
+  if (bufferPtr == bufferEnd) {
+    std::getline(file_s, line_str);
+    bufferPtr = line_str.cbegin();
+    bufferEnd = line_str.cend();
+  }
 }
 
 Token *Lexer::getToken() {
   char c;
+
+next:
+  getline();
   while (bufferPtr != bufferEnd) {
     c = *bufferPtr;
     if (std::isspace(c)) {
       ignoreWhiteSpace();
       continue;
     }
-
     if (std::ispunct(c)) {
       if (c == '=' || c == '<' || c == '>' || c == '!') {
         return relop_token();
       } else if (c == '+' || c == '-' || c == '*' || c == '/') {
         return op_token();
       }
-
       return delim_token();
     }
 
@@ -46,7 +57,12 @@ Token *Lexer::getToken() {
     if (std::isdigit(c)) {
       return number_token();
     }
+    getline();
   }
+
+  if (!file_s.eof())
+    goto next;
+
   return new Token{ENDTOKEN};
 }
 
@@ -56,7 +72,7 @@ StringToken *Lexer::id_token() {
     str.push_back(*bufferPtr);
     ++bufferPtr;
   }
-  StringToken *out_str {new StringToken{str}};
+  StringToken *out_str{new StringToken{str}};
   std::unordered_map<std::string, int> u_map = out_str->get_token_names();
   auto p = u_map.find(str);
   if (p == u_map.end()) {
@@ -78,27 +94,20 @@ NumberToken *Lexer::number_token() {
 
 StringToken *Lexer::delim_token() {
   std::string str{*bufferPtr};
-  switch (*bufferPtr) {
+  switch (*(bufferPtr++)) {
+  case '"':
+    return new StringToken{str, DOUBLEQUOTE};
   case '(':
-    ++bufferPtr;
     return new StringToken{str, LP};
   case ')':
-    ++bufferPtr;
     return new StringToken{str, RP};
   case '{':
-    ++bufferPtr;
     return new StringToken{str, LB};
   case '}':
-    ++bufferPtr;
     return new StringToken{str, RB};
   case ';':
-    ++bufferPtr;
     return new StringToken{str, ENDMARKER};
-  case '"':
-    ++bufferPtr;
-    return new StringToken{str, DOUBLEQUOTE};
   default:
-    ++bufferPtr;
     return new StringToken{ERRORTOKEN};
   }
 }
@@ -185,7 +194,7 @@ StringToken *Lexer::op_token() {
       } else if (*bufferPtr == '>') {
         ++bufferPtr;
         return new StringToken{"->", RETURN_TYPE};
-      }else {
+      } else {
         return new StringToken{"-", MINUS};
       }
     case 3:

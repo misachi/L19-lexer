@@ -5,16 +5,16 @@ CFLAGS := \
 	-Wpedantic \
 	-Werror \
 	-Wformat \
-	-Werror=format-security -g -O3 -Wall -std=c++17
+	-Werror=format-security -g -O1 -Wall -std=c++17
 
 SOURCES = $(wildcard src/*.cpp)
 OBJ = ${SOURCES:.cpp=.o}
 
-run: ${OBJ} main
-	${CC} -o out main.o ${OBJ}
-
 all: run
-	./out ${ARGS}
+	./a.out ${ARGS}
+
+run: ${OBJ} main
+	${CC} -o a.out main.o ${OBJ}
 
 main:
 	${CC} ${CFLAGS} -c main.cpp -o main.o
@@ -23,4 +23,4 @@ main:
 	${CC} ${CFLAGS} -c $< -o $@
 
 clean:
-	rm out *.o src/*.o
+	rm *.out *.o src/*.o

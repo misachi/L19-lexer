@@ -4,17 +4,18 @@
 #include <string>
 #include <vector>
 
-#include "lexer.h"
-#include "tokenizer.h"
+#include <lexer.h>
+#include <tokenizer.h>
 
-static std::string string_read_file_buffer(std::string filePath);
+using Lex::Lexer;
 
 int main(int argc, char **args)
 {
     if (argc < 2)
-        throw std::logic_error{"No file to parse"};
-    std::string path = string_read_file_buffer(args[1]);
-    Lexer lex {path};
+        throw std::runtime_error{"No file to parse"};
+
+    std::string str{args[1]};
+    Lexer lex{str};
 
     auto tok = lex.getToken();
     while (tok->get_type() != ENDTOKEN)
@@ -26,12 +27,3 @@ int main(int argc, char **args)
     delete tok;
 }
 
-static std::string string_read_file_buffer(std::string filePath)
-{
-    std::ifstream ifs{filePath};
-    std::ostringstream oss{};
-    oss << ifs.rdbuf();
-    std::string str = std::string{oss.str()};
-    ifs.close();
-    return str;
-}

@@ -24,7 +24,6 @@ enum {
   CATCH,
   TRUE,
   FALSE,
-  NUMBER,
   ID,
   RELOP,
   FLOATNUMBER,
@@ -49,10 +48,11 @@ enum {
   PLUSEQUAL,
   MULTIPLYEQUAL,
   DIVIDEEQUAL,
-  FLOAT,
   ERRORTOKEN,
   ENDMARKER,
+  ASSIGN_DELIM,  // :
   DOUBLEQUOTE,
+  SINGLEQUOTE,
   OPERATOR,
   INC,
   DEC,
@@ -60,8 +60,25 @@ enum {
   LOGICAL_OR,
   LSHIFT,
   RSHIFT,
+  // Types
+  NUMBER,
+  FLOAT,
   FUNC,
   RETURN_TYPE,
+  VOID,
+  BOOL,
+  CHAR,
+  SHORT,
+  STRING,
+  INT,
+  LONG,
+  LLONG,
+  DOUBLE,
+  LDOUBLE,
+  ARRAY,
+  ENUM,
+  PTR,
+  STRUCT,
 };
 
 class Token {
@@ -101,55 +118,55 @@ public:
     case FALSE:
       return "FALSE";
     case LP:
-        return "LP";
+      return "LP";
     case RP:
-        return "RP";
+      return "RP";
     case LB:
-        return "LB";
+      return "LB";
     case RB:
-        return "RB";
+      return "RB";
     case ENDMARKER:
       return "ENDMARKER";
     case LT:
-        return "LT";
+      return "LT";
     case EQ:
-        return "EQ";
+      return "EQ";
     case LE:
-        return "LE";
+      return "LE";
     case GT:
-        return "GT";
+      return "GT";
     case GE:
-        return "GE";
+      return "GE";
     case NE:
       return "NE";
     case MINUS:
-        return "MINUS";
+      return "MINUS";
     case PLUS:
-        return "PLUS";
+      return "PLUS";
     case MULTIPLY:
-        return "MULTIPLY";
+      return "MULTIPLY";
     case MINUSEQUAL:
-        return "MINUSEQUAL";
+      return "MINUSEQUAL";
     case PLUSEQUAL:
-        return "PLUSEQUAL";
+      return "PLUSEQUAL";
     case MULTIPLYEQUAL:
-        return "MULTIPLYEQUAL";
+      return "MULTIPLYEQUAL";
     case DIVIDEEQUAL:
-        return "DIVIDEEQUAL";
+      return "DIVIDEEQUAL";
     case DIVIDE:
-        return "DIVIDE";
+      return "DIVIDE";
     case INC:
-        return "INCR";
+      return "INCR";
     case DEC:
-        return "DECR";
+      return "DECR";
     case LOGICAL_AND:
-        return "LOGICAL_AND";
+      return "LOGICAL_AND";
     case LOGICAL_OR:
-        return "LOGICAL_OR";
+      return "LOGICAL_OR";
     case LSHIFT:
-        return "LSHIFT";
+      return "LSHIFT";
     case RSHIFT:
-        return "RSHIFT";
+      return "RSHIFT";
     case NUMBER:
       return "NUMBER";
     case FLOAT:
@@ -164,6 +181,8 @@ public:
       return "FUNC";
     case RETURN_TYPE:
       return "RETURN_TYPE";
+    case DOUBLEQUOTE:
+      return "DOUBLEQUOTE";
     default:
       return "ERRORTOKEN";
     }
@@ -203,6 +222,7 @@ public:
   int get_attribute() const { return i_attr; };
   void set_attribute(int i) { i_attr = i; }
   ~NumberToken(){};
+
 private:
   int i_attr;
 };
@@ -218,6 +238,7 @@ public:
   std::string get_attribute() const { return s_attr; };
   void set_attribute(std::string s) { s_attr = s; }
   ~StringToken(){};
+
 private:
   std::string s_attr;
 };
@@ -232,6 +253,7 @@ public:
   double get_attribute() const { return d_attr; };
   void set_attribute(double d) { d_attr = d; }
   ~FloatToken(){};
+
 private:
   double d_attr;
 };
