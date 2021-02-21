@@ -9,6 +9,7 @@
 #include <vector>
 
 using Lex::Lexer;
+using Lex::Token;
 
 Lexer::Lexer(std::string str) {
   file_s.open(str);
@@ -18,19 +19,23 @@ Lexer::Lexer(std::string str) {
 Lexer::~Lexer() { file_s.close(); }
 
 void Lexer::ignoreWhiteSpace() {
-  while ((bufferPtr != bufferEnd) && isspace(*bufferPtr))
+  while ((bufferPtr != bufferEnd) && isspace(*bufferPtr)) {
     ++bufferPtr;
+    ++token.col;
+  }
 }
 
 void Lexer::getline() {
   if (bufferPtr == bufferEnd) {
     std::getline(file_s, line_str);
+    ++token.line;
+    token.col = 1;
     bufferPtr = line_str.cbegin();
     bufferEnd = line_str.cend();
   }
 }
 
-Token *Lexer::getToken() {
+Token Lexer::getToken() {
   char c;
 
 next:
@@ -62,57 +67,73 @@ next:
 
   if (!file_s.eof())
     goto next;
-
-  return new Token{ENDTOKEN};
+  token.token = new Tokenize::Token{Tokenize::ENDTOKEN};;
+  return token;
 }
 
-StringToken *Lexer::id_token() {
+Token Lexer::id_token() {
   std::string str;
   while (std::isalnum(*bufferPtr) || *bufferPtr == '_') {
     str.push_back(*bufferPtr);
     ++bufferPtr;
+    ++token.col;
   }
-  StringToken *out_str{new StringToken{str}};
+  auto *out_str{new Tokenize::StringToken{str}};
   std::unordered_map<std::string, int> u_map = out_str->get_token_names();
   auto p = u_map.find(str);
-  if (p == u_map.end()) {
-    return out_str;
-  } else {
+
+  if (p != u_map.end())
     out_str->set_type(p->second);
-    return out_str;
-  }
+
+  token.token = out_str;
+  return token;
 }
 
-NumberToken *Lexer::number_token() {
+Token Lexer::number_token() {
   std::string str;
   while (std::isdigit(*bufferPtr)) {
     str.push_back(*bufferPtr);
     ++bufferPtr;
+    ++token.col;
   }
-  return new NumberToken{std::stoi(str), NUMBER};
+  token.token = new Tokenize::NumberToken{std::stoi(str), Tokenize::NUMBER};
+  return token;
 }
 
-StringToken *Lexer::delim_token() {
+Token Lexer::delim_token() {
   std::string str{*bufferPtr};
+  Tokenize::Token *tok = nullptr;
   switch (*(bufferPtr++)) {
   case '"':
-    return new StringToken{str, DOUBLEQUOTE};
+    tok = new Tokenize::StringToken{str, Tokenize::DOUBLEQUOTE};
+    break;
   case '(':
-    return new StringToken{str, LP};
+    tok = new Tokenize::StringToken{str, Tokenize::LP};
+    break;
   case ')':
-    return new StringToken{str, RP};
+    tok = new Tokenize::StringToken{str, Tokenize::RP};
+    break;
   case '{':
-    return new StringToken{str, LB};
+    tok = new Tokenize::StringToken{str, Tokenize::LB};
+    break;
   case '}':
-    return new StringToken{str, RB};
+    tok = new Tokenize::StringToken{str, Tokenize::RB};
+    break;
   case ';':
-    return new StringToken{str, ENDMARKER};
+    tok = new Tokenize::StringToken{str, Tokenize::ENDMARKER};
+    break;
   default:
-    return new StringToken{ERRORTOKEN};
+    tok = new Tokenize::StringToken{str, Tokenize::ERRORTOKEN};
+    token.token = tok;
+    panic();
+    break;
   }
+  token.token = tok;
+  ++token.col;
+  return token;
 }
 
-StringToken *Lexer::relop_token() {
+Token Lexer::relop_token() {
   int state = 0;
   while (1) {
     switch (state) {
@@ -127,38 +148,49 @@ StringToken *Lexer::relop_token() {
         state = 7;
       }
       ++bufferPtr;
+      ++token.col;
       break;
     case 1:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"==", EQ};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"==", Tokenize::EQ};
       } else {
-        return new StringToken{"=", ASSIGN};
+        token.token = new Tokenize::StringToken{"=", Tokenize::ASSIGN};
       }
+      return token;
     case 3:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"<=", LE};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"<=", Tokenize::LE};
       } else if (*bufferPtr == '<') {
         ++bufferPtr;
-        return new StringToken{"<<", LSHIFT};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"<<", Tokenize::LSHIFT};
       } else {
-        return new StringToken{"<", LT};
+        token.token = new Tokenize::StringToken{"<", Tokenize::LT};
       }
+      return token;
     case 5:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{">=", GE};
+        ++token.col;
+        token.token = new Tokenize::StringToken{">=", Tokenize::GE};
       } else if (*bufferPtr == '>') {
         ++bufferPtr;
-        return new StringToken{">>", RSHIFT};
+        ++token.col;
+        token.token = new Tokenize::StringToken{">>", Tokenize::RSHIFT};
       } else {
-        return new StringToken{">", GT};
+        token.token = new Tokenize::StringToken{">", Tokenize::GT};
       }
+      return token;
     case 7:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"!=", NE};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"!=", Tokenize::NE};
+        return token;
       }
       break;
     default:
@@ -167,7 +199,7 @@ StringToken *Lexer::relop_token() {
   }
 }
 
-StringToken *Lexer::op_token() {
+Token Lexer::op_token() {
   int state = 0;
   while (1) {
     switch (state) {
@@ -183,44 +215,56 @@ StringToken *Lexer::op_token() {
       }
 
       ++bufferPtr;
+      ++token.col;
       break;
     case 1:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"-=", MINUSEQUAL};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"-=", Tokenize::MINUSEQUAL};
       } else if (*bufferPtr == '-') {
         ++bufferPtr;
-        return new StringToken{"--", DEC};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"--", Tokenize::DEC};
       } else if (*bufferPtr == '>') {
         ++bufferPtr;
-        return new StringToken{"->", RETURN_TYPE};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"->", Tokenize::RETURN_TYPE};
       } else {
-        return new StringToken{"-", MINUS};
+        token.token = new Tokenize::StringToken{"-", Tokenize::MINUS};
       }
+      return token;
     case 3:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"+=", PLUSEQUAL};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"+=", Tokenize::PLUSEQUAL};
       } else if (*bufferPtr == '+') {
         ++bufferPtr;
-        return new StringToken{"++", INC};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"++", Tokenize::INC};
       } else {
-        return new StringToken{"+", PLUS};
+        token.token = new Tokenize::StringToken{"+", Tokenize::PLUS};
       }
+      return token;
     case 7:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"*=", MULTIPLYEQUAL};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"*=", Tokenize::MULTIPLYEQUAL};
       } else {
-        return new StringToken{"*", MULTIPLY};
+        token.token = new Tokenize::StringToken{"*", Tokenize::MULTIPLY};
       }
+      return token;
     case 9:
       if (*bufferPtr == '=') {
         ++bufferPtr;
-        return new StringToken{"/=", DIVIDEEQUAL};
+        ++token.col;
+        token.token = new Tokenize::StringToken{"/=", Tokenize::DIVIDEEQUAL};
       } else {
-        return new StringToken{"/", DIVIDE};
+        token.token = new Tokenize::StringToken{"/", Tokenize::DIVIDE};
       }
+      return token;
     default:
       break;
     }

@@ -1,11 +1,8 @@
-#include <sstream>
-#include <fstream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
-#include <lexer.h>
-#include <tokenizer.h>
+#include "Include/lexer.h"
+#include "Include/tokenizer.h"
 
 using Lex::Lexer;
 
@@ -18,12 +15,12 @@ int main(int argc, char **args)
     Lexer lex{str};
 
     auto tok = lex.getToken();
-    while (tok->get_type() != ENDTOKEN)
+    while (tok.token->get_type() != Tokenize::ENDTOKEN)
     {
-        tok->print_token();
-        delete tok;
+        tok.token->print_token();
+        delete tok.token;
         tok = lex.getToken();
     }
-    delete tok;
+    delete tok.token;
 }
 

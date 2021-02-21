@@ -7,6 +7,8 @@
 
 using c_iter = std::string::const_iterator;
 
+namespace Tokenize{
+
 // Token types
 enum {
   WHILE = 100,
@@ -50,7 +52,7 @@ enum {
   DIVIDEEQUAL,
   ERRORTOKEN,
   ENDMARKER,
-  ASSIGN_DELIM,  // :
+  ASSIGN_DELIM, // :
   DOUBLEQUOTE,
   SINGLEQUOTE,
   OPERATOR,
@@ -257,5 +259,7 @@ public:
 private:
   double d_attr;
 };
+
+} // namespace Tokenize
 
 #endif
