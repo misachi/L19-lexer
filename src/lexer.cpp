@@ -35,6 +35,14 @@ void Lexer::getline() {
   }
 }
 
+Token Lexer::peekToken() {
+  auto buff = bufferPtr;
+  Token tok = getToken();
+  bufferPtr = buff;
+  return tok;
+}
+
+
 Token Lexer::getToken() {
   char c;
 

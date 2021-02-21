@@ -35,6 +35,7 @@ public:
     os << "Invalid token on line " << token.line << " " << "column " << token.col << std::endl;
     throw std::runtime_error(os.str());
   };
+  Token peekToken();
   void getline();
   Token getToken();
   void ignoreWhiteSpace();
